@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 0; font-family: 'Open Sans', Arial, sans-serif; color: #2b2b2b; }
+
+  :root {
+    --teal: #6BA8B0;
+    --gold: #D9A647;
+    --rust: #C47A3D;
+    --ink: #2b2b2b;
+    --line: #e2e2e2;
+    --line2: #cccccc;
+  }
+
+  .page { width: 280mm; height: 396mm; position: relative; page-break-after: always; overflow: hidden; background: #ffffff; }
+  .page:last-child { page-break-after: auto; }
+  .pad { padding: 24mm 26mm 21mm 26mm; height: 100%; }
+  .inner { display: flex; flex-direction: column; height: 100%; }
+
+  .pagehead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6mm; }
+  .pagehead .eyebrow { font-size: 13.3pt; letter-spacing: 3px; color: var(--rust); font-weight: 700; }
+  .pagehead .tag { font-size: 10.6pt; letter-spacing: 2px; color: #999; font-weight: 700; }
+  h1.title { font-size: 26pt; font-weight: 800; margin: 0 0 2.5mm 0; }
+  p.intro { font-size: 10.6pt; line-height: 1.4; color: #555; margin: 0 0 5mm 0; max-width: 220mm; }
+
+  .key-grid { display: flex; flex-direction: column; gap: 3mm; flex: 1; min-height: 0; }
+  .key-row { display: flex; gap: 10mm; align-items: flex-start; border-bottom: 1px solid #eee; padding-bottom: 3mm; }
+  .key-label-col { width: 56mm; flex-shrink: 0; padding-top: 0.5mm; }
+  .key-label-col .name { font-size: 10.6pt; font-weight: 800; margin-bottom: 1mm; }
+  .key-label-col .desc { font-size: 8pt; color: #888; line-height: 1.25; }
+  .key-sample-col { flex: 1; min-width: 0; }
+
+  /* ===== SUNBEAM SAMPLE STYLES ===== */
+  .grad-strip { height: 3.3mm; border-radius: 3.3mm; background: linear-gradient(90deg, var(--gold), var(--rust), var(--teal)); margin-bottom: 4mm; max-width: 90mm; }
+  .sb-label { display: flex; align-items: center; margin-bottom: 3mm; }
+  .sb-label .dot { width: 4mm; height: 4mm; border-radius: 50%; flex-shrink: 0; margin-right: 4mm; }
+  .sb-label .dots2 { display: flex; flex-shrink: 0; margin-right: 4mm; }
+  .sb-label .dots2 .c { width: 3.6mm; height: 3.6mm; border-radius: 50%; margin-left: -1mm; border: 0.5mm solid #ffffff; }
+  .sb-label .dots2 .c:first-child { margin-left: 0; background: var(--gold); }
+  .sb-label .dots2 .c:last-child { background: var(--teal); }
+  .sb-label .text { font-size: 9.5pt; letter-spacing: 1.6px; font-weight: 800; text-transform: uppercase; color: #777; }
+  .sb-label.note .dot { background: var(--teal); }
+  .sb-label.activity .dot { background: var(--gold); }
+  .sb-label.ref .dot { background: var(--rust); }
+  .sample-heading { font-family: 'Nunito', Arial, sans-serif; font-weight: 800; font-size: 11.5pt; margin: 0 0 1.5mm 0; }
+  .sample-body { font-size: 8.8pt; color: #555; line-height: 1.3; max-width: 130mm; }
+  .sb-activity-box { border: 2px solid var(--teal); border-radius: 4mm; padding: 3mm 5mm; max-width: 150mm; }
+  .sb-lab-box { border: 2.3px solid var(--ink); border-radius: 4mm; padding: 3mm 5mm; position: relative; max-width: 150mm; margin-top: 2mm; }
+  .sb-lab-tag { position: absolute; top: -3.5mm; right: 6mm; background: var(--rust); color: white; font-size: 7.6pt; letter-spacing: 1.2px; font-weight: 800; padding: 1.3mm 4mm; border-radius: 5mm; }
+  .sb-margin-block { border-left: 3mm solid var(--rust); border-radius: 1.3mm; padding-left: 5mm; max-width: 150mm; }
+  .img-frame-sample { border-radius: 3mm; border: 1.3px solid var(--line); padding: 4mm 5mm; max-width: 90mm; font-size: 9pt; color: #999; text-align: center; font-style: italic; }
+  .end-flourish { display: flex; gap: 4mm; align-items: center; }
+  .end-flourish .shape { width: 4mm; height: 4mm; border-radius: 50%; }
+
+  /* ===== NEW: Scripture Callout (Sunbeam) - lightly filled box, italic, distinct color ===== */
+  .sb-scripture-box { background: rgba(107,168,176,0.08); border-left: 1.3mm solid var(--teal); border-radius: 1.5mm; padding: 4mm 6mm; max-width: 140mm; font-style: italic; font-size: 10pt; color: #4a4a4a; }
+  .sb-scripture-box .ref { display: block; font-style: normal; font-weight: 700; font-size: 8pt; letter-spacing: 1px; color: var(--teal); margin-top: 2mm; }
+
+  /* ===== NEW: Participant Exercise (Sunbeam) - double rule to the left ===== */
+  .sb-participant-block { border-left: 0.6mm solid var(--gold); padding-left: 5mm; max-width: 150mm; position: relative; }
+  .sb-participant-block::before { content: ''; position: absolute; left: -2.6mm; top: 0; bottom: 0; width: 0.6mm; background: var(--gold); opacity: 0.4; }
+
+  /* ===== NEW: Table/Chart (Sunbeam) ===== */
+  .sb-table { border-collapse: collapse; width: 100%; max-width: 150mm; font-size: 9pt; }
+  .sb-table th { background: rgba(217,166,71,0.12); color: var(--ink); font-size: 8pt; letter-spacing: 0.6px; text-transform: uppercase; text-align: left; padding: 2.5mm 3.5mm; border-bottom: 1.3px solid var(--gold); }
+  .sb-table td { padding: 2.5mm 3.5mm; border-bottom: 1px solid var(--line); color: #555; }
+
+  /* ===== NEW: Worksheet (Sunbeam) - small flourish line above/below, dashed fill lines ===== */
+  .sb-worksheet { max-width: 140mm; }
+  .sb-flourish-rule { height: 0.8mm; width: 14mm; background: var(--gold); border-radius: 1mm; margin: 0 auto 4mm auto; }
+  .sb-worksheet .ws-line { border-bottom: 1px dashed #ccc; height: 5.5mm; }
+
+  /* ===== ALMANAC SAMPLE STYLES ===== */
+  .al-bar { height: 3.8mm; background: var(--rust); margin-bottom: 4mm; max-width: 90mm; }
+  .al-marker { display: flex; align-items: center; margin-bottom: 3mm; }
+  .al-marker .tri { width: 0; height: 0; border-top: 2.1mm solid transparent; border-bottom: 2.1mm solid transparent; border-left: 3mm solid var(--rust); margin-right: 3mm; flex-shrink: 0; }
+  .al-marker.note .tri { border-left-color: var(--teal); }
+  .al-marker.activity .tri { border-left-color: var(--gold); }
+  .al-label-text { font-size: 9.5pt; letter-spacing: 1.6px; font-weight: 800; text-transform: uppercase; color: var(--ink); }
+  .sample-heading-al { font-family: 'Bricolage Grotesque', Georgia, serif; font-weight: 700; font-size: 11.5pt; margin: 0 0 1.5mm 0; }
+  .rule-sample { height: 1.6px; background: var(--ink); margin: 2mm 0 3mm 0; max-width: 130mm; }
+  .al-activity-box { border: 1.3px solid var(--gold); padding: 3mm 5mm; max-width: 150mm; }
+  .al-lab-box { border: 2.3px solid var(--ink); padding: 3mm 5mm; position: relative; max-width: 150mm; margin-top: 2mm; border-top: 2.3px solid var(--rust); }
+  .al-lab-tag { position: absolute; top: 0; right: 0; background: var(--rust); color: white; font-size: 7.6pt; letter-spacing: 1.2px; font-weight: 800; padding: 1.3mm 4mm; }
+  .al-margin-block { border-top: 2.3px solid var(--rust); padding-top: 3mm; max-width: 150mm; }
+  .al-citation-sample { font-size: 9pt; color: var(--teal); font-weight: 700; }
+  .end-flourish-al { display: flex; gap: 3mm; align-items: center; }
+  .end-flourish-al .al-end-line { height: 1.3px; background: var(--line2); width: 18mm; }
+  .end-flourish-al .al-end-tri { width: 0; height: 0; border-left: 2.6mm solid transparent; border-right: 2.6mm solid transparent; border-top: 4mm solid var(--rust); }
+
+  /* ===== NEW: Scripture Callout (Almanac) - lightly filled box, italic, distinct color ===== */
+  .al-scripture-box { background: rgba(196,122,61,0.06); border-top: 1.6px solid var(--rust); border-bottom: 1.6px solid var(--rust); padding: 4mm 6mm; max-width: 140mm; font-style: italic; font-size: 10pt; color: #333; }
+  .al-scripture-box .ref-al { display: block; font-style: normal; font-weight: 700; font-size: 8pt; letter-spacing: 1px; text-align: right; margin-top: 2mm; }
+
+  /* ===== NEW: Participant Exercise (Almanac) - double rule to the left ===== */
+  .al-participant-block { border-left: 0.5mm solid var(--ink); padding-left: 5mm; max-width: 150mm; position: relative; }
+  .al-participant-block::before { content: ''; position: absolute; left: -2.3mm; top: 0; bottom: 0; width: 0.5mm; background: var(--ink); opacity: 0.35; }
+
+  /* ===== NEW: Table/Chart (Almanac) ===== */
+  .al-table { border-collapse: collapse; width: 100%; max-width: 150mm; font-size: 9pt; }
+  .al-table th { background: transparent; color: var(--ink); font-size: 8pt; letter-spacing: 0.6px; text-transform: uppercase; text-align: left; padding: 2.5mm 3.5mm; border-bottom: 2px solid var(--ink); }
+  .al-table td { padding: 2.5mm 3.5mm; border-bottom: 1px solid #ddd; color: #333; }
+
+  /* ===== NEW: Worksheet (Almanac) - small flourish line above/below, dashed fill lines ===== */
+  .al-worksheet { max-width: 140mm; }
+  .al-flourish-rule { height: 0.6mm; width: 14mm; background: var(--ink); margin: 0 auto 4mm auto; }
+  .al-worksheet .ws-line-al { border-bottom: 1px dashed #bbb; height: 5.5mm; }
+
+  .footer-strip { display: flex; justify-content: space-between; font-size: 9.6pt; color: #999; margin-top: 6mm; padding-top: 4mm; border-top: 1.3px solid #eee; }
+</style>
+</head>
+<body>
+
+<!-- ============ SUNBEAM KEY ============ -->
+<div class="page" data-document-role="page" data-label="Sunbeam Key">
+  <div class="pad inner">
+    <div class="pagehead">
+      <div class="eyebrow">SUNBEAM KEY</div>
+      <div class="tag">REFERENCE &middot; NOT FOR PRINT</div>
+    </div>
+    <h1 class="title">Sunbeam Element Reference</h1>
+    <p class="intro">Every visual pattern used in the Sunbeam direction, with its label and purpose. Use this page to keep new pages consistent as the handbook grows.</p>
+
+    <div class="key-grid">
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Page Signature</div>
+          <div class="desc">Slim 3-color gradient strip at the top of every Sunbeam page.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="grad-strip"></div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Trainer Note</div>
+          <div class="desc">Teal dot marker. Used for facilitation guidance and background context.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-label note"><div class="dot"></div><div class="text">Trainer Note</div></div>
+          <h2 class="sample-heading">Sensory &amp; Vocal Facilitation</h2>
+          <p class="sample-body">Everyone retains more when they <i>do</i> something rather than just hear it.</p>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Core Principle</div>
+          <div class="desc">Gold dot marker. Used for the central teaching idea of a section.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-label activity"><div class="dot"></div><div class="text">Core Principle</div></div>
+          <h2 class="sample-heading">God's Style of Storytelling</h2>
+          <p class="sample-body">We tell stories that are Memorable, Unexpected, and Multi-Sensory.</p>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Key Principle / Above All</div>
+          <div class="desc">Thick rust margin rule. Used for the single most important takeaway on a page.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-margin-block">
+            <h2 class="sample-heading">Live It Out</h2>
+            <p class="sample-body">Your passion and presentation is not what children remember most.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Peer Activity</div>
+          <div class="desc">Rounded teal-outlined box with a two-circle marker (gold + teal). Used for partner or group exercises.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-activity-box">
+            <div class="sb-label activity"><div class="dots2"><div class="c"></div><div class="c"></div></div><div class="text">Peer Activity</div></div>
+            <p class="sample-body" style="margin:0;"><b>The Expression Challenge.</b> Turn to a partner and portray an emotion without words.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Lab Activity</div>
+          <div class="desc">Rounded heavy black border with a pill-shaped "ACTIVITY" corner tag. Used for hands-on group practice.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-lab-box">
+            <div class="sb-lab-tag">ACTIVITY</div>
+            <h2 class="sample-heading">Into the Lab: The Sensory Tell</h2>
+            <p class="sample-body" style="margin:0;">Get back into your small groups and practice telling the story.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Reference Image</div>
+          <div class="desc">Rounded thin border with an italic caption beneath. Used for supporting visual material.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="img-frame-sample">[ image ]</div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Scripture Callout</div>
+          <div class="desc">Lightly tinted teal box, italic text, with the reference set apart below. The one place color appears as a true fill, since it marks Scripture as distinct from commentary.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-scripture-box">
+            We cared so much for you that we were pleased to share with you not only the Gospel of God, but also our own lives.
+            <span class="ref">1 THESSALONIANS 2:8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Participant Exercise</div>
+          <div class="desc">Double gold rule to the left. Used for individual or whole-room reflection, distinct from partner-based Peer Activity.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-participant-block">
+            <p class="sample-body" style="margin:0;"><b>The Non-Dominant Hand Challenge.</b> Write your full name using your non-dominant hand. How did that feel?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Table / Chart</div>
+          <div class="desc">Gold header rule with a soft tinted header row. Used for comparison charts and structured reference data.</div>
+        </div>
+        <div class="key-sample-col">
+          <table class="sb-table">
+            <tr><th>Phase</th><th>Purpose</th></tr>
+            <tr><td>Welcome</td><td>Hospitality</td></tr>
+            <tr><td>Games</td><td>Connection</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Worksheet</div>
+          <div class="desc">Small gold flourish rule above and below, with dashed fill lines. Used for fillable, write-on content rather than reference material.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="sb-worksheet">
+            <div class="sb-flourish-rule"></div>
+            <div class="ws-line"></div>
+            <div class="ws-line"></div>
+            <div class="sb-flourish-rule" style="margin-top:4mm; margin-bottom:0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row" style="border-bottom: none;">
+        <div class="key-label-col">
+          <div class="name">Closing Flourish</div>
+          <div class="desc">Three small dots in teal, gold, and rust. Used to mark the end of lighter-content pages.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="end-flourish"><div class="shape" style="background:var(--teal);"></div><div class="shape" style="background:var(--gold);"></div><div class="shape" style="background:var(--rust);"></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-strip"><span>KIDSTORY &middot; TRAINER'S HANDBOOK</span><span>SUNBEAM KEY</span></div>
+  </div>
+</div>
+
+<!-- ============ ALMANAC KEY ============ -->
+<div class="page" data-document-role="page" data-label="Almanac Key">
+  <div class="pad inner">
+    <div class="pagehead">
+      <div class="eyebrow">ALMANAC KEY</div>
+      <div class="tag">REFERENCE &middot; NOT FOR PRINT</div>
+    </div>
+    <h1 class="title">Almanac Element Reference</h1>
+    <p class="intro">Every visual pattern used in the Almanac direction, with its label and purpose. Structure and rules carry meaning here, not color fills, so the page still works in black and white.</p>
+
+    <div class="key-grid">
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Page Signature</div>
+          <div class="desc">Solid heavy rust bar at the top of every Almanac page.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-bar"></div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Trainer Note</div>
+          <div class="desc">Teal triangle marker. Used for facilitation guidance and background context.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-marker note"><div class="tri"></div><div class="al-label-text">Trainer Note</div></div>
+          <h2 class="sample-heading-al">Sensory &amp; Vocal Facilitation</h2>
+          <div class="rule-sample"></div>
+          <p class="sample-body">Everyone retains more when they <i>do</i> something rather than just hear it.</p>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Core Principle</div>
+          <div class="desc">Gold/rust triangle marker. Used for the central teaching idea of a section.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-marker activity"><div class="tri"></div><div class="al-label-text">Core Principle</div></div>
+          <h2 class="sample-heading-al">God's Style of Storytelling</h2>
+          <p class="sample-body">We tell stories that are Memorable, Unexpected, and Multi-Sensory.</p>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Key Principle / Above All</div>
+          <div class="desc">Heavy top rule, hairline bottom rule. Used for the single most important takeaway on a page.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-margin-block">
+            <h2 class="sample-heading-al">Live It Out</h2>
+            <p class="sample-body">Your passion and presentation is not what children remember most.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Peer Activity</div>
+          <div class="desc">Sharp hairline rectangle border. Used for partner or group exercises.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-activity-box">
+            <div class="al-marker activity"><div class="tri"></div><div class="al-label-text">Peer Activity</div></div>
+            <p class="sample-body" style="margin:0;"><b>The Expression Challenge.</b> Turn to a partner and portray an emotion without words.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Lab Activity</div>
+          <div class="desc">Sharp heavy border with rust top edge and square "ACTIVITY" corner tag. Used for hands-on group practice.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-lab-box">
+            <div class="al-lab-tag">ACTIVITY</div>
+            <h2 class="sample-heading-al">Into the Lab: The Sensory Tell</h2>
+            <p class="sample-body" style="margin:0;">Get back into your small groups and practice telling the story.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Reference Image</div>
+          <div class="desc">Sharp thin border with an italic caption beneath. Used for supporting visual material.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="img-frame-sample" style="border-radius:0;">[ image ]</div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Scripture Callout</div>
+          <div class="desc">Lightly tinted rust box bracketed by heavy rules, italic text, citation right-aligned below. The one place color appears as a true fill, since it marks Scripture as distinct from commentary.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-scripture-box">
+            We cared so much for you that we were pleased to share with you not only the Gospel of God, but also our own lives.
+            <span class="ref-al">1 THESSALONIANS 2:8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Participant Exercise</div>
+          <div class="desc">Double rule to the left. Used for individual or whole-room reflection, distinct from partner-based Peer Activity.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-participant-block">
+            <p class="sample-body" style="margin:0;"><b>The Non-Dominant Hand Challenge.</b> Write your full name using your non-dominant hand. How did that feel?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Table / Chart</div>
+          <div class="desc">Heavy double rule beneath the header, no fills. Used for comparison charts and structured reference data.</div>
+        </div>
+        <div class="key-sample-col">
+          <table class="al-table">
+            <tr><th>Phase</th><th>Purpose</th></tr>
+            <tr><td>Welcome</td><td>Hospitality</td></tr>
+            <tr><td>Games</td><td>Connection</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="key-row">
+        <div class="key-label-col">
+          <div class="name">Worksheet</div>
+          <div class="desc">Small ink flourish rule above and below, with dashed fill lines. Used for fillable, write-on content rather than reference material.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="al-worksheet">
+            <div class="al-flourish-rule"></div>
+            <div class="ws-line-al"></div>
+            <div class="ws-line-al"></div>
+            <div class="al-flourish-rule" style="margin-top:4mm; margin-bottom:0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-row" style="border-bottom: none;">
+        <div class="key-label-col">
+          <div class="name">Closing Flourish</div>
+          <div class="desc">Hairline rule, single triangle, hairline rule. Used to mark the end of lighter-content pages.</div>
+        </div>
+        <div class="key-sample-col">
+          <div class="end-flourish-al"><div class="al-end-line"></div><div class="al-end-tri"></div><div class="al-end-line"></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-strip"><span>KIDSTORY &middot; TRAINER'S HANDBOOK</span><span>ALMANAC KEY</span></div>
+  </div>
+</div>
+
+</body>
+</html>
